@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -e # Exit on error
+CMD="@STM8FLASH@ -p @MCU@ -c ${PROG}"
+for n in @MCU@ @MCU1@ @MCU2@
+do
+	f="@CMAKE_SOURCE_DIR@/etc/opt-$n.ihx"
+	if [ -f "$f" ]
+	then
+		echo ":: Flashing option bytes..."
+		$CMD -s opt -w $f
+		break
+	fi
+done
+echo ":: Flashing firmware..."
+$CMD -w main.ihx
