@@ -23,7 +23,7 @@ Supported MCUs
 Dependencies
 ------------
 
-+ cmake >= 3.12
++ cmake
 + sdcc
 + stm8flash
 
