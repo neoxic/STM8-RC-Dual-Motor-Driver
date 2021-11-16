@@ -21,7 +21,7 @@
 
 #define duty(x) ((450U * (x)) / (PWM_MAX - PWM_MIN))
 
-static int16_t input(uint16_t t, volatile uint16_t *u) {
+static int16_t input(uint16_t t, uint16_t *u) {
 	if (t < 800 || t > 2200) { // Invalid signal
 		*u = 0;
 		return 0;
@@ -31,7 +31,7 @@ static int16_t input(uint16_t t, volatile uint16_t *u) {
 	return t - 1500;
 }
 
-static uint16_t output(int16_t t, volatile uint8_t *f, volatile uint8_t *r) {
+static uint16_t output(int16_t t, uint8_t *f, uint8_t *r) {
 	*f = t > 50;
 	*r = t < -50 ? t = -t, 1 : 0;
 	if (t < 50) return 0;
@@ -39,9 +39,9 @@ static uint16_t output(int16_t t, volatile uint8_t *f, volatile uint8_t *r) {
 	return duty(PWM_MIN) + t - 50;
 }
 
-static volatile uint16_t u1, u2, p1, p2;
-static volatile int16_t i1, i2;
-static volatile uint8_t f1, f2, r1, r2;
+static uint16_t u1, u2, p1, p2;
+static int16_t i1, i2;
+static volatile uint8_t f1, f2, r1, r2; // 'volatile' facilitates SDCC's bres/bset optimization
 
 static void update(void) {
 #ifdef INDEP
