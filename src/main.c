@@ -91,7 +91,8 @@ void TIM1_CCIF(void) __interrupt(TIM1_CCIRQ) {
 		uint16_t t1 = (TIM1_CCR1H << 8) | TIM1_CCR1L;
 		uint16_t t2 = (TIM1_CCR2H << 8) | TIM1_CCR2L;
 		i1 = input(t2 - t1, &u1);
-	} else if (TIM1_SR1 & 0x10) { // CC4IF=1
+	}
+	if (TIM1_SR1 & 0x10) { // CC4IF=1
 		uint16_t t1 = (TIM1_CCR3H << 8) | TIM1_CCR3L;
 		uint16_t t2 = (TIM1_CCR4H << 8) | TIM1_CCR4L;
 		i2 = input(t2 - t1, &u2);
