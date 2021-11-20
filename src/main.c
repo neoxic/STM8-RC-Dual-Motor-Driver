@@ -86,6 +86,21 @@ static void update(void) {
 	WWDG_CR = 0xff; // Reset watchdog
 }
 
+static void channel(uint8_t i, uint16_t t) {
+	switch (i) {
+#ifdef IBUS_CH1
+		case IBUS_CH1:
+			i1 = input(t, &u1);
+			break;
+#endif
+#ifdef IBUS_CH2
+		case IBUS_CH2:
+			i2 = input(t, &u2);
+			break;
+#endif
+	}
+}
+
 void TIM1_CCIF(void) __interrupt(TIM1_CCIRQ) {
 	if (TIM1_SR1 & 0x04) { // CC2IF=1
 		uint16_t t1 = (TIM1_CCR1H << 8) | TIM1_CCR1L;
@@ -110,28 +125,17 @@ void UART_RXNE(void) __interrupt(UART_RXIRQ) {
 		u = 0xff9f;
 		return;
 	}
-	if (n >= 30 || ++n & 1) return;
+	if (n == 30 || ++n & 1) return;
 	uint16_t t = a | (b << 8);
-	switch (n >> 1) {
-#ifdef IBUS_CH1
-		case IBUS_CH1:
-			i1 = input(t, &u1);
-			break;
-#endif
-#ifdef IBUS_CH2
-		case IBUS_CH2:
-			i2 = input(t, &u2);
-			break;
-#endif
-		case 15: // Checksum
-			if (t != u) return;
-			update();
-
-			// Disable RC channels to avoid conflict
-			TIM1_CCER1 = 0x00; // CC1E=0, CC2E=0 (disable IC1,IC2)
-			TIM1_CCER2 = 0x00; // CC3E=0, CC4E=0 (disable IC3,IC4)
-			return;
+	if (n == 30) { // End of chunk
+		if (u != t) return; // Sync lost
+		update();
+		// Disable RC channels to avoid conflict
+		TIM1_CCER1 = 0x00; // CC1E=0, CC2E=0 (disable IC1,IC2)
+		TIM1_CCER2 = 0x00; // CC3E=0, CC4E=0 (disable IC3,IC4)
+		return;
 	}
+	channel(n >> 1, t);
 	u -= a + b;
 }
 
@@ -146,7 +150,7 @@ void TIM1_UIF(void) __interrupt(TIM1_UIRQ) {
 }
 
 int putchar(int c) {
-	while (!(UART_SR & 0x80)); // TXE=0 (in progress)
+	while (!(UART_SR & 0x80)); // TXE=0 (TX in progress)
 	UART_DR = c;
 	return 0;
 }
@@ -156,7 +160,7 @@ void main(void) {
 #ifdef CLK_EXT // Automatic HSI->HSE clock switching
 	CLK_SWCR = 0x02; // Enable switch
 	CLK_SWR = 0xb4; // Enable HSE clock
-	while (!(CLK_SWCR & 0x08)); // SWIF=0 (in progress)
+	while (!(CLK_SWCR & 0x08)); // SWIF=0 (switch in progress)
 	CLK_ICKR = 0x00; // Disable HSI clock
 	CLK_SWCR = 0x00; // Disable switch
 #else

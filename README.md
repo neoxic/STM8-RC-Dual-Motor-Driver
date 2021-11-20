@@ -50,7 +50,7 @@ To build, run (with your own MCU):
 
 To install on the device, run (with your own programmer):
 
-	sudo make PROG=stlinkv2 flash
+	make PROG=stlinkv2 flash
 
 
 Pinout
