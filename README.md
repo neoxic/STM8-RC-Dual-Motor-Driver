@@ -117,4 +117,4 @@ Protect the ESC from electrical noise coming from your motors by soldering one 0
 
 ![](img/caps.png)
 
-Choose your motor leads and power supply according to the maximum current the motors can draw. Insufficient current supply can cause profound voltage drop during rapid acceleration which may lead to sporadic MCU resets. It is also beheficial to make the leads as short as possible and twist them around each other.
+Choose your motor leads and power supply according to the maximum current the motors can draw. Insufficient current supply can cause profound voltage drop during rapid acceleration which may lead to sporadic MCU resets. It is also beneficial to make the leads as short as possible and twist them around each other.
