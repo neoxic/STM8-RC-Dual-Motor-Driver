@@ -32,7 +32,7 @@
 // #define REV2_INV // Reverse 2 active low
 #define LED_INV // LED active low
 
-// RC-to-RX channel mapping (1..14)
+// RC-to-RX channel mapping
 #define IBUS_CH1 3
 #define IBUS_CH2 4
 

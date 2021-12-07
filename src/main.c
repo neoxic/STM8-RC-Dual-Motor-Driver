@@ -86,21 +86,6 @@ static void update(void) {
 	WWDG_CR = 0xff; // Reset watchdog
 }
 
-static void channel(uint8_t i, uint16_t t) {
-	switch (i) {
-#ifdef IBUS_CH1
-		case IBUS_CH1:
-			i1 = input(t, &u1);
-			break;
-#endif
-#ifdef IBUS_CH2
-		case IBUS_CH2:
-			i2 = input(t, &u2);
-			break;
-#endif
-	}
-}
-
 void TIM1_CCIF(void) __interrupt(TIM1_CCIRQ) {
 	if (TIM1_SR1 & 0x04) { // CC2IF=1
 		uint16_t t1 = (TIM1_CCR1H << 8) | TIM1_CCR1L;
@@ -135,7 +120,18 @@ void UART_RXNE(void) __interrupt(UART_RXIRQ) {
 		TIM1_CCER2 = 0x00; // CC3E=0, CC4E=0 (disable IC3,IC4)
 		return;
 	}
-	channel(n >> 1, t);
+	switch (n >> 1) {
+#ifdef IBUS_CH1
+		case IBUS_CH1:
+			i1 = input(t, &u1);
+			break;
+#endif
+#ifdef IBUS_CH2
+		case IBUS_CH2:
+			i2 = input(t, &u2);
+			break;
+#endif
+	}
 	u -= a + b;
 }
 
