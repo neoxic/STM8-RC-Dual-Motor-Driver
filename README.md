@@ -1,7 +1,7 @@
-RC-PWM-Mixer firmware for STM8 MCUs
-===================================
+RC Dual Motor Driver firmware for STM8 MCUs
+===========================================
 
-This firmware turns an STM8 MCU into an RC (radio control) bidirectional 2-channel PWM motor controller:
+This firmware turns an STM8 MCU into an RC (radio control) bidirectional dual motor driver:
 
 * By default, RC channel 1 controls forward/reverse for both motors while RC channel 2 controls differential steering between them.
 * In independent mode, RC channels 1 and 2 control the motors independently.
