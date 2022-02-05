@@ -116,8 +116,8 @@ void UART_RXNE(void) __interrupt(UART_RXIRQ) {
 		if (u != t) return; // Sync lost
 		update();
 		// Disable RC channels to avoid conflict
-		TIM1_CCER1 = 0x00; // CC1E=0, CC2E=0 (disable IC1,IC2)
-		TIM1_CCER2 = 0x00; // CC3E=0, CC4E=0 (disable IC3,IC4)
+		TIM1_CCER1 = 0x00;
+		TIM1_CCER2 = 0x00;
 		return;
 	}
 	switch (n >> 1) {
@@ -136,11 +136,11 @@ void UART_RXNE(void) __interrupt(UART_RXIRQ) {
 }
 
 void TIM1_UIF(void) __interrupt(TIM1_UIRQ) {
-	static uint8_t led;
-	TIM1_SR1 = 0x00; // UIF=0 (clear interrupt flag)
+	TIM1_SR1 = 0x00; // Clear interrupts
 #ifdef DEBUG
-	CFG_GCR = 0x00; // AL=0 (resume main loop)
+	CFG_GCR = 0x00; // Resume main loop
 #endif
+	static uint8_t led;
 	if (!led) led = (!!u1 + !!u2) * 2 + 1;
 	else if (--led) LED_ODR ^= LED_PIN;
 }
@@ -152,7 +152,6 @@ int putchar(int c) {
 }
 
 void main(void) {
-	DISABLE_INTERRUPTS();
 #ifdef CLK_EXT // Automatic HSI->HSE clock switching
 	CLK_SWCR = 0x02; // Enable switch
 	CLK_SWR = 0xb4; // Enable HSE clock
@@ -212,6 +211,8 @@ void main(void) {
 	TIM1_ARRH = 0xff;
 	TIM1_ARRL = 0xff;
 	TIM1_RCR = 0x03; // Tick
+	TIM1_EGR = 0x01; // UG=1 (force update)
+	TIM1_CR1 = 0x01; // CEN=1 (enable counter)
 	TIM1_CCMR1 = 0x91; // CC1S=01, IC1F=1001 (CC1 as input, IC1 on TI1, CLK/8 N=8 filter)
 	TIM1_CCMR2 = 0x92; // CC2S=10, IC2F=1001 (CC2 as input, IC2 on TI1, CLK/8 N=8 filter)
 	TIM1_CCMR3 = 0x91; // CC3S=01, IC3F=1001 (CC3 as input, IC3 on TI3, CLK/8 N=8 filter)
@@ -219,12 +220,13 @@ void main(void) {
 	TIM1_CCER1 = 0x31; // CC1E=1, CC2E=1, CC2P=1 (enable IC1 on rising edge, IC2 on falling edge)
 	TIM1_CCER2 = 0x31; // CC3E=1, CC4E=1, CC4P=1 (enable IC3 on rising edge, IC4 on falling edge)
 	TIM1_IER = 0x15; // UIE=1, CC2IE=1, CC4IE=1 (enable interrupts)
-	TIM1_CR1 = 0x01; // CEN=1 (enable counter)
 
 	// PWM channels 1,2
 	TIM2_PSCR = PWM_DIV & 0x0f;
 	TIM2_ARRH = (duty(100) - 1) >> 8;
 	TIM2_ARRL = (duty(100) - 1) & 0xff;
+	TIM2_EGR = 0x01; // UG=1 (force update)
+	TIM2_CR1 = 0x01; // CEN=1 (enable counter)
 	TIM2_CCMR1 = 0x68; // CC1S=00, OC1PE=1, OC1M=110 (CC1 as output, buffered CCR1, PWM mode 1)
 	TIM2_CCMR2 = 0x68; // CC2S=00, OC2PE=1, OC2M=110 (CC2 as output, buffered CCR2, PWM mode 1)
 #ifdef PWM_INV
@@ -232,7 +234,6 @@ void main(void) {
 #else
 	TIM2_CCER1 = 0x11; // CC1E=1, CC2E=1 (enable OC1 active high, OC2 active high)
 #endif
-	TIM2_CR1 = 0x01; // CEN=1 (enable counter)
 
 #ifdef CLK_16MHZ
 	UART_BRR2 = 0x0b;

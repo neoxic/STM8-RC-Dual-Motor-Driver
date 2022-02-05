@@ -97,6 +97,7 @@
 #define TIM1_CR1   sfr(0x5250)
 #define TIM1_IER   sfr(0x5254)
 #define TIM1_SR1   sfr(0x5255)
+#define TIM1_EGR   sfr(0x5257)
 #define TIM1_CCMR1 sfr(0x5258)
 #define TIM1_CCMR2 sfr(0x5259)
 #define TIM1_CCMR3 sfr(0x525a)
@@ -131,6 +132,7 @@
 #define UART_CR2  sfr(0x5235)
 
 #define TIM2_CR1   sfr(0x5300)
+#define TIM2_EGR   sfr(0x5306)
 #define TIM2_CCMR1 sfr(0x5307)
 #define TIM2_CCMR2 sfr(0x5308)
 #define TIM2_CCER1 sfr(0x530a)
@@ -163,6 +165,7 @@
 #define UART_CR2  sfr(0x5245)
 
 #define TIM2_CR1   sfr(0x5300)
+#define TIM2_EGR   sfr(0x5304)
 #define TIM2_CCMR1 sfr(0x5305)
 #define TIM2_CCMR2 sfr(0x5306)
 #define TIM2_CCER1 sfr(0x5308)
