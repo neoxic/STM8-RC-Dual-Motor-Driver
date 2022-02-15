@@ -111,15 +111,16 @@ void UART_RXNE(void) __interrupt(UART_RXIRQ) {
 		return;
 	}
 	if (n == 30 || ++n & 1) return;
-	uint16_t t = a | (b << 8);
+	uint16_t v = a | (b << 8);
 	if (n == 30) { // End of chunk
-		if (u != t) return; // Sync lost
+		if (u != v) return; // Sync lost
 		update();
 		// Disable RC channels to avoid conflict
 		TIM1_CCER1 = 0x00;
 		TIM1_CCER2 = 0x00;
 		return;
 	}
+	uint16_t t = v & 0x0fff;
 	switch (n >> 1) {
 #ifdef IBUS_CH1
 		case IBUS_CH1:
