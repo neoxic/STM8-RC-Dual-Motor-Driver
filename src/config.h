@@ -21,7 +21,6 @@
 // #define DEBUG // Debug mode (UART_TX on pin D5 at 115200 baud)
 // #define CLK_16MHZ // Use F_CPU=16Mhz instead of 8Mhz
 // #define CLK_EXT // Use HSE (external) clock
-#define CLK_TRIM 1 // HSI (internal) clock trimming (-8..+7)
 #define PWM_MIN 10 // Minimum non-zero PWM duty cycle (%)
 #define PWM_MAX 100 // Maximum non-zero PWM duty cycle (%)
 #define PWM_DIV 0 // PWM frequency divider (0..15), F_PWM=F_CPU*(PWM_MAX-PWM_MIN)/(45000*2^PWM_DIV)

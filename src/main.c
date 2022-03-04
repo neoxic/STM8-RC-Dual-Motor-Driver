@@ -87,12 +87,38 @@ static void update(void) {
 }
 
 void TIM1_CCIF(void) __interrupt(TIM1_CCIRQ) {
-	if (TIM1_SR1 & 0x04) { // CC2IF=1
+	uint8_t sr = TIM1_SR1;
+	if (sr & 0x04) { // CC2IF=1
 		uint16_t t1 = (TIM1_CCR1H << 8) | TIM1_CCR1L;
 		uint16_t t2 = (TIM1_CCR2H << 8) | TIM1_CCR2L;
 		i1 = input(t2 - t1, &u1);
+#ifndef CLK_EXT
+		static uint8_t n;
+		if (n != 8 && (sr & 0x02)) { // CC1IF=1
+			static uint16_t t;
+			if (++n & 1) t = t1;
+			else { // Use every other period between rising edges to automatically adjust HSI clock
+				static int16_t q, x, y;
+				int16_t p = t1 - t; // Period
+				q += p - ((p + 500) / 1000) * 1000; // Deviation
+				if (n == 8) {
+					if (q > x) { // Slow down
+						++CLK_HSITRIMR;
+						y = -q;
+						q = 0;
+						n = 0;
+					} else if (q < y) { // Speed up
+						--CLK_HSITRIMR;
+						x = -q;
+						q = 0;
+						n = 0;
+					}
+				}
+			}
+		}
+#endif
 	}
-	if (TIM1_SR1 & 0x10) { // CC4IF=1
+	if (sr & 0x10) { // CC4IF=1
 		uint16_t t1 = (TIM1_CCR3H << 8) | TIM1_CCR3L;
 		uint16_t t2 = (TIM1_CCR4H << 8) | TIM1_CCR4L;
 		i2 = input(t2 - t1, &u2);
@@ -164,9 +190,6 @@ void main(void) {
 	CLK_CKDIVR = 0x00; // HSI/1=16Mhz clock
 #else
 	CLK_CKDIVR = 0x08; // HSI/2=8Mhz clock
-#endif
-#ifdef CLK_TRIM
-	CLK_HSITRIMR = CLK_TRIM & 0x0f;
 #endif
 #endif
 

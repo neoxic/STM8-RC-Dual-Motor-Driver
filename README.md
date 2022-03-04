@@ -31,15 +31,13 @@ Dependencies
 Installation
 ------------
 
-Check out _#defines_ at the beginning of _src/config.h_ to see if you need to change settings before building the firmware. Options to consider:
+Check out _#define_ statements at the beginning of _src/config.h_ to see if you need to change settings before building the firmware. Options to consider:
 
 * The default PWM frequency is 16kHz at 8Mhz clock. It can be decreased by a multiple of 2 using the PWM_DIV value. It can also be doubled by switching to 16Mhz clock via the CLK_16MHZ option.
 
 * The output pins can be inverted via the *_INV options.
 
 * If iBUS is used, RC-to-RX channel mapping can be configured using the IBUS_CHx values.
-
-* Internal clock source trimming may be necessary for correct RC signal sampling by tuning the CLK_TRIM value. To check accuracy, build in debug mode (uncomment the corresponding _#define_ in _src/config.h_), install the firmware, connect your console to pin D5 (UART_TX) at 115200 baud, make sure the control sticks are properly adjusted and are in the middle position, and check that CHx values are as close to 1500 as possible. If they are higher, the clock is too fast (increase CLK_TRIM). If they are lower, the clock is too slow (decrease CLK_TRIM). Don't forget to disable debug mode, rebuild and reinstall. A more robust approach would be to use an external clock source (if present) by enabling the CLK_EXT option. Alternatively, a FlySky receiver can be connected via iBUS.
 
 
 To build, run (with your own MCU):
