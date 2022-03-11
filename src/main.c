@@ -1,5 +1,5 @@
 /*
-** Copyright (C) 2021 Arseny Vakhrushev <arseny.vakhrushev@me.com>
+** Copyright (C) 2021-2022 Arseny Vakhrushev <arseny.vakhrushev@me.com>
 **
 ** This firmware is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -100,7 +100,7 @@ void TIM1_CCIF(void) __interrupt(TIM1_CCIRQ) {
 			else { // Use every other period between rising edges to automatically adjust HSI clock
 				static int16_t q, x, y;
 				int16_t p = t1 - t; // Period
-				q += p - ((p + 500) / 1000) * 1000; // Deviation
+				q += p - ((p + 500) / 1000) * 1000; // Cumulative error
 				if (n == 8) {
 					if (q > x) { // Slow down
 						++CLK_HSITRIMR;
