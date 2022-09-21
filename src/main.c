@@ -33,7 +33,7 @@ static int16_t input(uint16_t t, uint16_t *u) {
 
 static uint16_t output(int16_t t, uint8_t *f, uint8_t *r) {
 	*f = t > 50;
-	*r = t < -50 ? t = -t, 1 : 0;
+	if ((*r = t < -50)) t = -t;
 	if (t < 50) return 0;
 	if (t > 500) return duty(PWM_MAX);
 	return duty(PWM_MIN) + t - 50;
@@ -89,8 +89,8 @@ static void update(void) {
 void TIM1_CCIF(void) __interrupt(TIM1_CCIRQ) {
 	uint8_t sr = TIM1_SR1;
 	if (sr & 0x04) { // CC2IF=1
-		uint16_t t1 = (TIM1_CCR1H << 8) | TIM1_CCR1L;
-		uint16_t t2 = (TIM1_CCR2H << 8) | TIM1_CCR2L;
+		uint16_t t1 = TIM1_CCR1H << 8 | TIM1_CCR1L;
+		uint16_t t2 = TIM1_CCR2H << 8 | TIM1_CCR2L;
 		i1 = input(t2 - t1, &u1);
 #ifndef CLK_EXT
 		static uint8_t n;
@@ -119,8 +119,8 @@ void TIM1_CCIF(void) __interrupt(TIM1_CCIRQ) {
 #endif
 	}
 	if (sr & 0x10) { // CC4IF=1
-		uint16_t t1 = (TIM1_CCR3H << 8) | TIM1_CCR3L;
-		uint16_t t2 = (TIM1_CCR4H << 8) | TIM1_CCR4L;
+		uint16_t t1 = TIM1_CCR3H << 8 | TIM1_CCR3L;
+		uint16_t t2 = TIM1_CCR4H << 8 | TIM1_CCR4L;
 		i2 = input(t2 - t1, &u2);
 	}
 	update();
@@ -137,7 +137,7 @@ void UART_RXNE(void) __interrupt(UART_RXIRQ) {
 		return;
 	}
 	if (n == 30 || ++n & 1) return;
-	uint16_t v = a | (b << 8);
+	uint16_t v = a | b << 8;
 	if (n == 30) { // End of chunk
 		if (u != v) return; // Sync lost
 		update();
